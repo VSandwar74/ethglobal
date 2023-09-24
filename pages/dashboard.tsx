@@ -1,44 +1,75 @@
-import {useRouter} from 'next/router';
-import React, {useEffect} from 'react';
-import {usePrivy} from '@privy-io/react-auth';
+// import {useRouter} from 'next/router';
+import React, {useEffect, useState} from 'react';
+// import {usePrivy, useWallets} from '@privy-io/react-auth';
 import Head from 'next/head';
-import { Client } from '@xmtp/xmtp-js'
-import { Wallet } from 'ethers'
+
+// import { Client } from '@xmtp/xmtp-js'
+// import { Wallet } from 'ethers'
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const {
-    ready,
-    authenticated,
-    user,
-    logout,
-  } = usePrivy();
+  // const router = useRouter();
+  // const {
+  //   ready,
+  //   authenticated,
+  //   user,
+  //   logout,
+  // } = usePrivy();
+
+
+  const [ethData, setEthData] = useState([]);
+  const [polyData, setPolyData] = useState([]);
+  const [bnbData, setBnbData] = useState([]);
 
   useEffect(() => {
-    if (ready && !authenticated) {
-      router.push('/');
-    }
-  }, [ready, authenticated, router]);
+    const ethUrl = "http://localhost:3001/ethData";  
+    const polyUrl = "http://localhost:3001/polyData";  
+    const bnbUrl = "http://localhost:3001/bnbData";
+  
+    
+    fetch(ethUrl).then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then((responseData) => {
+      const edata = (responseData); // Update the state with the fetched data
+      setEthData(edata.map((item: any) => item.price_close))
+    })
+    .catch((err) => {
+      console.log(err); // Handle errors
+    });
+    
+    fetch(polyUrl).then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then((responseData) => {
+      const pdata = (responseData); // Update the state with the fetched data
+      setPolyData(pdata.map((item: any) => item.price_close))
+    })
+    .catch((err) => {
+      console.log(err); // Handle errors
+    });
 
-
-
-
-    // You'll want to replace this with a wallet from your application
-    const wallet = Wallet.createRandom()
-    // Create the client with your wallet. This will connect to the XMTP development network by default
-    const xmtp = await Client.create(wallet)
-    // Start a conversation with XMTP
-    const conversation = await xmtp.conversations.newConversation(
-      '0x3F11b27F323b62B159D2642964fa27C46C841897'
-    )
-    // Load all messages in the conversation
-    const messages = await conversation.messages()
-    // Send a message
-    await conversation.send('gm')
-    // Listen for new messages in the conversation
-    for await (const message of await conversation.streamMessages()) {
-      console.log(`[${message.senderAddress}]: ${message.content}`)
-    }
+    fetch(bnbUrl).then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then((responseData) => {
+      const bdata = (responseData); // Update the state with the fetched data
+      setBnbData(bdata.map((item: any) => item.price_close))
+    })
+    .catch((err) => {
+      console.log(err); // Handle errors
+    });
+  }, [])
+  
+  
   return (
     <>
       <Head>
