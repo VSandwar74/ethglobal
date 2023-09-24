@@ -49,6 +49,10 @@ console.log(addressesArray);
 
 
 export default function DashboardPage() {
+
+  const APP_ID = "clmwlnfnp004rjz0f4ag80cwx";
+  const SECRET = "4UihfUJEhPvG7UQiPC5Cur7wszr2SEi67Kt2awQi3ZuDgutAevgAC6hikmnvEc4SQYsMhckMUAKz6aBqRoBNYtw5"
+
   const router = useRouter();
   const {
       ready,
@@ -66,54 +70,77 @@ export default function DashboardPage() {
       }
   }, [ready, authenticated, router]);
 
-  const getUsers = async (cursor) => {
-      const url = `/api/getUsers` + (cursor ? `?cursor=${cursor}` : '');
-      const response = await fetch(url);
+  // const getUsers = async (cursor) => {
+  //     const url = `/api/getUsers` + (cursor ? `?cursor=${cursor}` : '');
+  //     const response = await fetch(url);
 
-      if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+  //     if (!response.ok) {
+  //         throw new Error(`HTTP error! Status: ${response.status}`);
+  //     }
+
+  //     return console.log(response.json());
+  // };
+  // Helper function to query Privy's API
+  const getUsers = async (cursor?: string) => {
+    // Specify cursor in URL params if a cursor is provided
+    const url = 'https://auth.privy.io/api/v1/users' + (cursor ? `?cursor=${cursor}` : '');
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization':  btoa(':' + SECRET),
+        'privy-app-id': APP_ID,
       }
-
-      return console.log(response.json());
-  };
+    });
+    return response.json()
+  }
 
   useEffect(() => {
-      const fetchData = async () => {
-          let cursor;
-          let fetchedUsers: any[] | ((prevState: never[]) => never[]) = [];
+    const assign = async () => {
+      const userData = await getUsers();
+      setUsers(userData);
+    };
+    
+    assign();
+    console.log(users)
+  }, [])
 
-          try {
-              do {
-                  const query = await getUsers(cursor);
-                  fetchedUsers = fetchedUsers.concat(query.data);
-                  cursor = query.next_cursor;
-              } while(cursor !== null);
+  // useEffect(() => {
+  //     const fetchData = async () => {
+  //         let cursor;
+  //         let fetchedUsers: any[] | ((prevState: never[]) => never[]) = [];
 
-              setUsers(fetchedUsers);
-          } 
-          catch (err) {
-            if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError('An error occurred.');
-            }
-        }
-          finally 
-          {
-              setIsLoading(false);
-          }
-      };
+  //         try {
+  //             do {
+  //                 const query = await getUsers(cursor);
+  //                 fetchedUsers = fetchedUsers.concat(query.data);
+  //                 cursor = query.next_cursor;
+  //             } while(cursor !== null);
 
-      fetchData();
-  }, []);
+  //             setUsers(fetchedUsers);
+  //         } 
+  //         catch (err) {
+  //           if (err instanceof Error) {
+  //               setError(err.message);
+  //           } else {
+  //               setError('An error occurred.');
+  //           }
+  //       }
+  //         finally 
+  //         {
+  //             setIsLoading(false);
+  //         }
+  //     };
 
-  if (isLoading) {
-      return <div>Loading...</div>;
-  }
+  //     fetchData();
+  // }, []);
 
-  if (error) {
-      return <div>Error: {error}</div>;
-  }
+  // if (isLoading) {
+  //     return <div>Loading...</div>;
+  // }
+
+  // if (error) {
+  //     return <div>Error: {error}</div>;
+  // }
 
   // const [ethData, setEthData] = useState([]);
   // const [polyData, setPolyData] = useState([]);
@@ -247,6 +274,7 @@ export default function DashboardPage() {
           <div>
             <form className='flex flex-row p-4'>
               <input type='text' className='w-full rounded-xl bg-transparent border border-white text-end'/>
+              <button type='submit'>Send</button>
             </form>
           </div>
         </div>

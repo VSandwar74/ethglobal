@@ -1,1 +1,3 @@
 API_KEY = 'EWRtq6OgdgOi60aJAuJQAojEjdIo5EDD'
+APP_ID = 'clmwlnfnp004rjz0f4ag80cwx'
+APP_SECRET = '4UihfUJEhPvG7UQiPC5Cur7wszr2SEi67Kt2awQi3ZuDgutAevgAC6hikmnvEc4SQYsMhckMUAKz6aBqRoBNYtw5'

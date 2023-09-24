@@ -1,14 +1,47 @@
 from flask import Flask, jsonify
 import requests
 import config
+import base64
 
 app = Flask(__name__)
 port = 3001
 
-@app.route('/users')
-def get_users():
-    try:
-        
+# Privy API credentials
+privy_app_id = config.APP_ID
+privy_app_secret = config.APP_SECRET
+
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
+
+# Helper function to query Privy's API
+def get_users(cursor=None):
+    url = 'https://auth.privy.io/api/v1/users'
+    # params = {'cursor': cursor} if cursor else {}
+
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(f'{privy_app_id}:{privy_app_secret}'.encode()).decode(),
+        'privy-app-id': privy_app_id,
+    }
+
+    response = requests.get(url, params=params, headers=headers)
+    print(response)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return response.status_code  # Handle error cases here
+
+@app.route('/getusers')
+def get_users_route():
+    cursor = request.args.get('cursor')
+    users_data = get_users(cursor)
+
+    if users_data:
+        return jsonify(users_data)
+    else:
+        return jsonify(error='Failed to fetch users'), 500
+
 
 @app.route('/ethData')
 def get_eth_data():
